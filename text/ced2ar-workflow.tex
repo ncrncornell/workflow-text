@@ -1,0 +1,235 @@
+% Flowcharting techniques for easy maintenance
+% Author: Brent Longborough
+% http://www.texample.net/media/tikz/examples/TEX/flexible-flow-chart.tex
+\documentclass[x11names]{article}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{tikz}
+\usepackage{courier}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,urlcolor=black,filecolor=black,linkcolor=black,citecolor=black,linkcolor=black}
+\usepackage{attachfile}
+\attachfilesetup{color=0 0 0}
+\usetikzlibrary{shapes,arrows,chains,positioning,fit,calc,backgrounds}
+
+\usepackage[printonlyused]{acronym}
+\usepackage{fullpage}
+
+\usepackage[backend=biber]{biblatex}
+\bibliography{paper} % or
+
+%%%<
+\usepackage{verbatim}
+%\usepackage[active,tightpage]{preview}
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{5mm}%
+\newcommand{\repec}{RePEc}
+%%%>
+\newcommand{\mylstinputlisting}[2]{
+\lstinputlisting[]{#1}
+\textattachfile{#1}{(#2 : #1)}
+}
+
+\input{lstprov}
+
+\title{An ex-post workflow documentation tool}
+\author{Lars Vilhuber%
+\footnote{Cornell University, corresponding author. This work is funded by NSF Grant \href{http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1131848}{1131848}.}
+\and Carl Lagoze%
+\footnote{University of Michigan}
+\and Ben Perry%
+\footnote{Cornell University}
+}
+
+\begin{document}
+\maketitle
+% =================================================
+% Set up a few colours
+\colorlet{lcadvisor}{Green3}
+\colorlet{lcauthor}{Blue3}
+\colorlet{lcuse}{Red3}
+\colorlet{lcattr}{Green3}
+\definecolor{ncentity}{HTML}{B0C4DE}
+% -------------------------------------------------
+% Set up a new layer for the debugging marks, and make sure it is on
+% top
+\pgfdeclarelayer{marx}
+\pgfsetlayers{main,marx}
+% A macro for marking coordinates (specific to the coordinate naming
+% scheme used here). Swap the following 2 definitions to deactivate
+% marks.
+%\providecommand{\cmark}[2][]{%
+%  \begin{pgfonlayer}{marx}
+%    \node [nmark] at (c#2#1) {#2};
+%  \end{pgfonlayer}{marx}
+%  } 
+\providecommand{\cmark}[2][]{\relax} 
+% -------------------------------------------------
+% Start the picture
+%\include{tikz-example}
+\section{Introduction}
+\label{sec:intro}
+\input{introduction}
+
+
+\section{Basic PROV of a simple workflow}
+\section{Graph components}
+The completed file can be found as an attachment to this document 
+(\textattachfile{prov-full.xml}{here}).
+\lstset{language=XML,breaklines=true}
+\subsection{Research activity}
+\subsubsection*{Agents}
+Agents undertake a research activity. Agents can be identified by external identifiers. In this 
+example, we have identified users by their \repec~ handle, and included their \repec~ 
+homepage. 
+
+\lstinputlisting[firstline=65,lastline=76]{prov-full.xml}
+
+\subsubsection*{Entities}
+Entities are the datasets, programs, and articles that are being linked here.  A subset are listed 
+here.
+\lstinputlisting[firstline=15,lastline=23]{prov-full.xml}
+\lstinputlisting[firstline=42,lastline=56]{prov-full.xml}
+\subsubsection*{Activities}
+We define a research activity to generate papers and data, and ultimately articles.
+\lstinputlisting[firstline=78,lastline=83]{prov-full.xml}
+
+\subsubsection*{Linking them}
+\lstinputlisting[firstline=85,lastline=118]{prov-full.xml}
+
+The straightforward research activity as traditionally focusing on papers would look like  
+Figure~\ref{fig:author:complex}.
+\begin{figure}
+\caption{Authorship with research activity}\label{fig:author:complex}
+\include{tikz-authorship-complex}
+\end{figure}
+
+\begin{figure}
+\caption{Provenance back to data}\label{fig:workflow:complex}
+\include{tikz-workflow-complex}
+\end{figure}
+
+
+\section{Combining the subgraphs}
+\label{sec:combine}
+
+Describe how we would link to other provenance chains.
+
+\clearpage
+
+\section{A simple example}
+\label{sec:example}
+
+To provide an example, we read in a portion of the U.S. Census Bureau's Census of Population 
+and Housing Public Use Microdata Sample (Decennial PUMS). Specifically, we used the Alaska 
+subset (file \texttt{DS2} or \texttt{DS0002}, depending on where it is referenced) \cite{pumsak}. 
+The data file and a draft program  were obtained from the \ac{ICPSR}. After 
+editing\footnote{The program as provided does not work, for two reasons: it is meant to be 
+edited in its structure, and the commands included are sometimes erroneous.}, the program 
+\texttt{01\_stata.do} (see Appendix~\ref{sec:stata1}) 
+was run to obtain a table with the distribution of those identifying with a particular Alaska Native 
+tribe in the population, and as a fraction of those with some Alaska Native mention. To do so, we 
+tabulate both \texttt{RACE2}, which lists a variety of groupings, but also lists 4 Alaska Native 
+categories (\texttt{31-34}: Alaskan Athabascan, Aleut, Eskimo, Tlingit-Haida alone), and 
+\texttt{RACE1}, which allows for either "4 - Alaska Native alone" or 
+"5 - American Indian and Alaska Native tribes specifies, and no other races".  We use 
+\texttt{pweight} to construct the relevant table. The resulting table is Table~\ref{freq_specific_ak}.
+
+\input{../samples/ICPSR-PUMS/freq_specific_ak.tex}
+
+Expressed as PROV, the resulting provenance graph is represented by 
+Figure~\ref{fig:author:example}. We choose to describe the entity ``file:person.dta'' (a dataset), 
+rather than ``Table~\ref{freq_specific_ak}'', because the latter is a summary (a simple 
+specialization) of the former.  [need to express this in the PROV]. This allows us to simplify the 
+graph somewhat more, without loss of generality, to Figure~\ref{fig:author:example:simple}. 
+
+\begin{figure}
+\centering
+\caption{Sample research activity with full provenance}\label{fig:author:example}
+\include{tikz-authorship-example}
+\end{figure}
+
+\begin{figure}
+\centering
+\caption{Sample research activity with simplified provenance}\label{fig:author:example:simple}
+\include{tikz-authorship-example-simple}
+\end{figure}
+
+The full PROV associated with this graph is depicted in Appendix~\ref{sec:example:prov}.
+
+\section{An graphical interface}
+\label{sec:interface}
+%Here plug in the graphical interface and tool. See example at \url{http://dev.ncrn.cornell.edu/ced2ar-web/prov2/}.
+
+The graphical workflow tool elicits all the information needed in Figure~\ref{fig:workflow:complex} from the user in a flexible manner, starting with an initial blank template (Figure~\ref{fig:ui:initial}). The user can then edit the information on entities (Figure~\ref{fig:ui:edit}). Information on outside datasets can be prompted using selectors, for known or user-provided repositories, dynamically loading in information using supported protocols (OAI-PMH, DDI-Disco) (Figure~\ref{fig:ui:data-selector:doi}). Information on internal entities (programs, unpublished datasets) are elicited from the user, using a file browser, Figure~\ref{fig:ui:data-selector:local} (caching previous runs of the application will also be explored). \marginpar{I don't know how to get to that selector from an existing node}. Once selected, the user is encouraged to provide a full documentation for any datasets through the integrated DDI editor. Additional entities can be added to make more complex workflows (Figure)The PROV serves both as a guide to the workflow tool, as well as a standards-compliant documentation of the provenance of the research article.
+
+\begin{figure}
+\caption{Initial user interface and entity editing}\label{fig:ui:initial}
+\centering
+\includegraphics[width=0.45\textwidth]{figure-ced2ar-ui-initial}
+\label{fig:ui:edit}
+\centering
+\includegraphics[width=0.45\textwidth]{figure-ced2ar-ui-edit}
+\end{figure}
+
+
+
+\begin{figure}
+\caption{Selector for external and local entities}\label{fig:ui:data-selector:doi}
+\label{fig:ui:data-selector:local}
+\includegraphics[width=0.45\textwidth]{figure-ced2ar-ui-local-selector}
+\includegraphics[width=0.45\textwidth]{figure-ced2ar-ui-remote-selector}
+
+\end{figure}
+
+\begin{figure}
+\caption{Adding entities}\label{fig:ui:add-entity}
+\centering
+\includegraphics[width=0.5\textwidth]{figure-ced2ar-ui-add-entity}
+\end{figure}
+
+\marginpar{OK, how do we go from here to editing the DDI?}
+
+\clearpage
+
+\section{Future work}
+\label{sec:future_work}
+Already present in the \repec~ network are citation links (linking papers among themselves). This work links in with CED$^2$AR work (citations) and other efforts for linking papers and articles to the data used for (empirical) papers. Establishing such links can be represented by a tripartite graph:
+
+\printbibliography
+
+\appendix
+
+\section{Stata program for readin of PUMS as used}
+\label{sec:stata1}
+The following program was run to obtain Table~\ref{freq_specific_ak}. The program can be run 
+in batch mode (\texttt{stata -b do 01\_stata.do}), and will generate the table included above 
+dynamically. It was derived from the (non-functioning) program and layout provided at 
+\url{http://doi.org/10.3886/ICPSR13568.v1} (and archived at 
+\url{https://github.com/ncrncornell/workflow/tree/master/samples/ICPSR-PUMS/ICPSR_13568}).
+
+\lstinputlisting[basicstyle=\footnotesize,language=SAS,frame=single,keepspaces=false,breaklines=false,showspaces=false]{../samples/ICPSR-PUMS/01_stata.do}
+
+%\section{Stata program for readin of PUMS provided by ICPSR}
+%\ac{ICPSR} provides a Stata program, but it cannot be used as-is, as it needs to be edited, and 
+%Stata commands need to be corrected. 
+%\lstinputlisting[language=XML,breaklines=true]{../samples/ICPSR-PUMS/ICPSR_13568/13568-Setup.do}
+
+\section{PROV for simple example of Section~\ref{sec:example}}
+\label{sec:example:prov}
+The following omits the first document declaration for clarity. The complete file 
+\textattachfile{../samples/ICPSR-PUMS/pumsak.dta.ddi25-ncrn.xml}{is attached}.
+\lstinputlisting[language=XML,breaklines=true,firstline=52,lastline=97]{../samples/ICPSR-PUMS/pumsak.dta.ddi25-ncrn.xml}
+
+\section{Additional processing}
+For the purpose of this paper, 
+ we used OpenDataForge Sledgehammer to convert the Stata file produced by the program in 
+Appendix~\ref{sec:stata1} to DDI 2.5. In order to use the freeware version of Sledgehammer, we subset the file to 4999 
+observations. 
+\lstinputlisting[frame=single,showspaces=false,language=sh]{../samples/ICPSR-PUMS/sledgehammer.out}
+
+
+\section*{Acronyms used}
+\input{acronyms.tex}
+\end{document}

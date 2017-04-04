@@ -1,0 +1,72 @@
+% Flowcharting techniques for easy maintenance
+% Author: Brent Longborough
+% http://www.texample.net/media/tikz/examples/TEX/flexible-flow-chart.tex
+% Start the picture
+\begin{tikzpicture}[%
+    >=triangle 60,              % Nice arrows; your taste may be different
+    start chain=going below,    % General flow is top-to-bottom
+    node distance=10mm and 60mm, % Global setup of box spacing
+    every join/.style={author},   % Default linetype for connecting boxes
+    ]
+% ------------------------------------------------- 
+% A few box styles 
+% <on chain> *and* <on grid> reduce the need for manual relative
+% positioning of nodes
+\tikzset{
+  base/.style={draw, on chain, on grid, align=center, minimum height=4ex},
+  activity/.style={base, rectangle, text width=8em, minimum height=2em},
+  agent/.style={base, diamond, aspect=2, text width=5em},
+  entity/.style={base, ellipse,fill=ncentity!25,minimum height=2em,minimum width=8em,align=center},
+  legend/.style={base, draw=none,rectangle},
+  % coord node style is used for placing corners of connecting lines
+  coord/.style={coordinate, on chain, on grid, node distance=6mm and 25mm},
+  % nmark node style is used for coordinate debugging marks
+  nmark/.style={draw, cyan, circle, font={\sffamily\bfseries}},
+  % -------------------------------------------------
+  % Connector line styles for different parts of the diagram
+  author/.style={->, draw, lcauthor},
+  adivsor/.style={->, draw, lcadvisor},
+  use/.style={->, draw, lcuse},
+  attr/.style={->, draw, lcattr},
+  it/.style={font={\small\itshape}}
+}
+% -------------------------------------------------
+% Legend
+% Start by placing the nodes
+\node [entity, densely dotted, it] (e0) {Paper};
+% Use join to connect a node to the previous one 
+\node [entity, densely dotted, it] (e1) {Table 1};
+\node [entity, densely dotted, it] (e2) {program.do};
+\node [entity, densely dotted, it] (e3) {CPS};
+% We position the next block explicitly as the first block in the
+% second column.  The chain 'comes along with us'. The distance
+% between columns has already been defined, so we don't need to
+% specify it.
+\node [agent, , right=of e1] (p0) {Researcher};
+
+
+% -------------------------------------------------
+% Now we place the coordinate nodes for the connectors with angles, or
+% with annotations. We also mark them for debugging.
+%\node [coord, left=40mm of e0] (c0)  {}; \cmark{0}   
+%\node [coord, left=40mm of p2] (c1)  {}; \cmark{1}   
+%\node [coord, right=60mm of e0] (c2)  {}; \cmark{2}   
+%\node [coord, right=20mm of c2] (c3)  {}; \cmark{3}   
+%\node [coord, right=20mm of p5] (c4)  {}; \cmark{4}   
+%\node [coord, right=10mm of c2] (c3)  {}; \cmark{3}   
+% -------------------------------------------------
+% A couple of boxes have annotations
+%\node [above=0mm of p4, it] {(Queue was empty)};
+%\node [above=0mm of p8, it] {(Queue was not empty)};
+% -------------------------------------------------
+% All the other connections come out of tests and need annotating
+% First, the straight north-south connections. In each case, we first
+% draw a path with a (consistently positioned) annotation node, then
+% we draw the arrow itself.
+\path (e0.south) to node [left] {contains} (e1);
+  \draw [->,lcuse] (e0.south) -- (e1);
+\path (e1.south) to node [left] {produced by} (e2);
+  \draw [->,lcuse] (e1.south) -- (e2);
+\path (e2.south) to node [left] {used} (e3);
+  \draw [->,lcuse] (e2.south) -- (e3);
+\end{tikzpicture}

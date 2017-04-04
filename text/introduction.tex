@@ -1,0 +1,21 @@
+% $Id: introduction.tex 1272 2014-12-19 22:55:06Z lv39 $
+Describe PROV.\url{http://www.w3.org/TR/prov-primer/} Describe CED$^2$AR. Describe problem.
+
+The basic empirical scientific workflow is straightforward. Collect or acquire data, establish an analysis protocol and execute via statistical software, obtain results, and discuss results in the form of technical documents or published journal articles. 
+
+With this tool and associated implementation of a provenance-tracking document, we aim to capture the most frequent scenarios of that workflow. We start with the premise of an interested or co-erced user. For instance, take a researcher who is preparing the final manuscript for a journal that requires replication-ready archives of data and programs. If he hasn't done so up to this point, the researcher will start by collecting all the relevant pieces of data and code that make up the inputs to the paper. At its simplest, the paper has one table, that is produced by a single program (we assume that it's not produced by error-prone manual manipulations of data). That program read in some original data. See Figure~\ref{fig:workflow:simplistic}.
+\begin{figure}[!h]
+\centering
+\caption{Provenance}\label{fig:workflow:simplistic}
+\include{tikz-workflow-simplistic}
+\end{figure}
+
+The goal of the software described in this paper is to ``interview'' the author about all the relevant components. Given the existing paper, what is the name, location, and purpose of the program that generated Table 1? What dataset served as input to the program? Where is that dataset located? And could you please describe in more detail the variables that make up your table? 
+
+We choose a data-centric approach. Tying these concepts together, we leverage DDI for the data documentation (describe DDI, describe CED$^2$AR), and we leverage PROV (link to PROV) to describe the entities contributing to the program and the generated data. In its simplest instantiation, the input data is already well-catalogued, well-curated, and is browsable by DDI at a stable URL, possibly via a DOI. 
+
+We build on our prior work incorporating PROV into DDI. We now implement that specification as a software tool that can be used to visualize the workflow, and also provide all the necessary information to (potentially) upload the data and programs to a publication site.
+
+Issues that are solved including identifying the researcher (agent), specifying roles. 
+
+The resulting DDI+PROV file is machine-readable, and complies with two widely used standards. An immediate application is the frequent task researchers encounter in restricted-access data environments. There, researchers need to document the data they are requesting release for in a way that the disclosure avoidance analysis (most often a human and not a program task) can understand. Typical documents require description of the data, of the programs, and where the data was sourced from - all elements of the process and documentation described here. (Census RDC, IAB, Synthetic Data Server).
